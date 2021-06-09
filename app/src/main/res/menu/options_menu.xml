@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/options_kredit"
+        android:icon="@drawable/ic_kredit"
+        android:title="@string/kredit"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/options_debit"
+        android:icon="@drawable/ic_debit"
+        android:title="@string/debit"
+        app:showAsAction="ifRoom" />
+</menu>

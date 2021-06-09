@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Tipe-U</string>
+    <string name="nol">0</string>
+    <string name="kredit">Kredit</string>
+    <string name="debit">Debit</string>
+    <string name="saldo">Saldo :</string>
+    <string name="detail">Detail</string>
+</resources>
