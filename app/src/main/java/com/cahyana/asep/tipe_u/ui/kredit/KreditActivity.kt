@@ -41,8 +41,10 @@ class KreditActivity : AppCompatActivity(), KreditAdapter.KreditListener {
 
         activityKreditBinding.btnSimpan.setOnClickListener {
             val transaksi = generateTransaksi()
-            if (transaksi.transaksi.jumlah > 0)
+            if (transaksi.transaksi.jumlah > 0) {
                 viewModel.saveTransaksi(transaksi)
+            }
+
             finish()
         }
 

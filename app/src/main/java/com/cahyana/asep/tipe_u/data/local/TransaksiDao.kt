@@ -3,10 +3,7 @@ package com.cahyana.asep.tipe_u.data.local
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.*
-import com.cahyana.asep.tipe_u.data.entity.Transaksi
-import com.cahyana.asep.tipe_u.data.entity.TransaksiDetail
-import com.cahyana.asep.tipe_u.data.entity.TransaksiType
-import com.cahyana.asep.tipe_u.data.entity.Uang
+import com.cahyana.asep.tipe_u.data.entity.*
 import com.cahyana.asep.tipe_u.exception.SaldoException
 
 @Dao
@@ -31,6 +28,15 @@ abstract class TransaksiDao {
     @Query("SELECT * FROM transaksi ORDER BY id DESC")
     abstract fun getAllTransaksi(): DataSource.Factory<Int, Transaksi>
 
+    @Query("SELECT * FROM saldo")
+    abstract fun getDataSaldo(): Saldo
+
+    @Query("SELECT * FROM saldo")
+    abstract fun getSaldoDetail(): LiveData<Saldo>
+
+    @Update
+    abstract fun updateDataSaldo(saldo: Saldo)
+
     @Transaction
     open fun saveTransaksi(detail: TransaksiDetail) {
 
@@ -50,6 +56,110 @@ abstract class TransaksiDao {
         val idTransaksi = saveTransaksi(detail.transaksi)
         detail.uang.map { it.idTransaksi = idTransaksi.toInt() }
         saveUang(detail.uang)
-        println(detail)
+
+        updateDataSaldo(newSaldo, detail)
+
+    }
+
+    private fun updateDataSaldo(
+        newSaldo: Long,
+        detail: TransaksiDetail
+    ) {
+        val dataSaldo = getDataSaldo()
+        dataSaldo.saldo = newSaldo
+        when (detail.transaksi.type) {
+            TransaksiType.KREDIT.ordinal -> {
+                tambahDataSaldo(dataSaldo, detail)
+            }
+            TransaksiType.DEBIT.ordinal -> {
+                kurangDataSaldo(dataSaldo, detail)
+            }
+        }
+    }
+
+    private fun kurangDataSaldo(
+        dataSaldo: Saldo,
+        detail: TransaksiDetail
+    ) {
+        dataSaldo.apply {
+            detail.uang.forEach {
+                when (it.type) {
+                    UangType.T_100K -> {
+                        if (u100k < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_100K.tname} tidak cukup")
+                        u100k -= it.jumlah
+                    }
+                    UangType.T_50K -> {
+                        if (u50k < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_50K.tname} tidak cukup")
+                        u50k -= it.jumlah
+                    }
+                    UangType.T_20K -> {
+                        if (u20k < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_20K.tname} tidak cukup")
+                        u20k -= it.jumlah
+                    }
+                    UangType.T_10K -> {
+                        if (u10k < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_10K.tname} tidak cukup")
+                        u10k -= it.jumlah
+                    }
+                    UangType.T_5K -> {
+                        if (u5k < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_5K.tname} tidak cukup")
+                        u5k -= it.jumlah
+                    }
+                    UangType.T_2K -> {
+                        if (u2k < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_2K.tname} tidak cukup")
+                        u2k -= it.jumlah
+                    }
+                    UangType.T_1K -> {
+                        if (u1k < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_1K.tname} tidak cukup")
+                        u1k -= it.jumlah
+                    }
+                    UangType.T_500 -> {
+                        if (u5 < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_500.tname} tidak cukup")
+                        u5 -= it.jumlah
+                    }
+                    UangType.T_200 -> {
+                        if (u2 < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_200.tname} tidak cukup")
+                        u2 -= it.jumlah
+                    }
+                    UangType.T_100 -> {
+                        if (u1 < it.jumlah)
+                            throw SaldoException("Uang pecahan ${UangType.T_100.tname} tidak cukup")
+                        u1 -= it.jumlah
+                    }
+                }
+            }
+        }
+        updateDataSaldo(dataSaldo)
+    }
+
+    private fun tambahDataSaldo(
+        dataSaldo: Saldo,
+        detail: TransaksiDetail
+    ) {
+        dataSaldo.apply {
+            detail.uang.forEach {
+                when (it.type) {
+                    UangType.T_100K -> u100k += it.jumlah
+                    UangType.T_50K -> u50k += it.jumlah
+                    UangType.T_20K -> u20k += it.jumlah
+                    UangType.T_10K -> u10k += it.jumlah
+                    UangType.T_5K -> u5k += it.jumlah
+                    UangType.T_2K -> u2k += it.jumlah
+                    UangType.T_1K -> u1k += it.jumlah
+                    UangType.T_500 -> u5 += it.jumlah
+                    UangType.T_200 -> u2 += it.jumlah
+                    UangType.T_100 -> u1 += it.jumlah
+                }
+            }
+        }
+        updateDataSaldo(dataSaldo)
     }
 }

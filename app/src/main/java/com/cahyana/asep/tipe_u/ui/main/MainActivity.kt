@@ -42,6 +42,11 @@ class MainActivity : AppCompatActivity(), MainAdapter.ClickListener {
             println(it)
             adapter.submitList(it)
         })
+
+        activityMainBinding.tvSaldo.setOnClickListener {
+            val intentDetailSaldo = Intent(this, DetailActivity::class.java)
+            startActivity(intentDetailSaldo)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
